@@ -1,0 +1,74 @@
+.vnc {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#files {
+  display: none;
+  position: absolute;
+  left: 20vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60vw;
+  height: 60vh;
+  z-index: 2;
+  background-color: rgb(9 2 2 / 0.6);
+  border-radius: 10px;
+  border-style: inset;
+  border-color: rgb(255 255 255 / 0.6);
+}
+
+#files_frame {
+  width: 100%;
+  height: 100%;
+}
+
+.close {
+  position: absolute;
+  background: DimGray;
+  top: -10px;
+  right: -10px;
+  cursor: pointer;
+  border-radius:50%;
+  border-style: inset;
+  border-color: rgb(255 255 255 / 0.6);
+  width: 20px;
+  height: 20px;
+}
+
+#lsbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: max-content;
+  display: none;
+  background-color: rgb(9 2 2 / 0.6);
+  border-radius: 0 0 10px 10px;
+  border-style: inset;
+  border-color: rgb(255 255 255 / 0.6);
+}
+
+.icons {
+  margin: 5px;
+  padding: 4px;
+  height: 4vh;
+  cursor: pointer;
+  border-radius: 3px;
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(82deg) brightness(105%) contrast(105%);
+}
+
+.icons:hover {
+  background: rgba(0, 0, 0, 0.3);
+}

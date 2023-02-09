@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%- title -%></title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+    <link href="public/css/kclient.css" rel="stylesheet">
+  </head>
+  <body>
+    <!--KasmVNC Iframe-->
+    <iframe class="vnc" src="vnc/index.html?resize=remote&clipboard_up=true&clipboard_down=true&clipboard_seamless=true&show_control_bar=true"></iframe>
+    <!--LSIO Function Bar-->
+    <div id="lsbar">
+      <img class="icons" title="File Manager" src="public/css/files.svg" onclick="toggle('#files')"/>
+    </div>
+    <!--File Browser-->
+    <div id="files">
+      <iframe id="files_frame" name="files_frame" src="files" frameborder="0"></iframe>
+      <div class="close" onclick="closeToggle('#files')"></div>
+    </div>
+    <!--Main logic-->
+    <script src="public/js/jquery.min.js"></script>
+    <script src="public/js/kclient.js"></script>
+  </body>
+</html>
