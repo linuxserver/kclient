@@ -17,7 +17,8 @@ var bodyParser = require('body-parser');
 var baseRouter = express.Router();
 var fsw = require('fs').promises;
 var fs = require('fs');
-
+var PulseAudio = require('pulseaudio2');
+var pulse = new PulseAudio();
 
 //// Server Paths Main ////
 app.engine('html', require('ejs').renderFile);
@@ -130,6 +131,34 @@ io.on('connection', async function (socket) {
   socket.on('createfolder', createFolder);
 });
 
+//// PCM Audio Wrapper ////
+aio = socketIO(http, {path: SUBFOLDER + 'audio/socket.io'});
+aio.on('connection', async function (socket) {
+  var record;
+  let id = socket.id;
+
+  async function open() {
+    if (record) record.end();
+      record = pulse.createRecordStream({
+                 channels: 2,
+                 rate: 48000,
+                 format: 'S16LE',
+               });
+      record.on('connection', function(){
+        record.on('data', function(chunk) {
+          aio.sockets.to(id).emit('audio', chunk);
+        });
+      });
+  }
+  async function close() {
+    if (record) record.end();
+  }
+
+
+  // Incoming socket requests
+  socket.on('open', open);
+  socket.on('close', close);
+});
 
 // Spin up application on 6900
 app.use(SUBFOLDER, baseRouter);

@@ -58,3 +58,36 @@ function fullscreen() {
     }
   }
 }
+
+// Websocket comms for audio
+var host = window.location.hostname;
+var port = window.location.port;
+var protocol = window.location.protocol;
+var path = window.location.pathname;
+var socket = io(protocol + '//' + host + ':' + port, { path: path + 'audio/socket.io'});
+var player = {};
+
+function audio() {
+  if (('audioCtx' in player) && (player.audioCtx)) {
+    player.destroy();
+    socket.emit('close', '');
+    $('#audioButton').removeClass("icons-selected");
+    return;
+  }
+  socket.emit('open', '');
+  player = new PCMPlayer({
+             encoding: '16bitInt',
+             channels: 2,
+             sampleRate: 48000,
+             flushingTime: 10
+           });
+  $('#audioButton').addClass("icons-selected");
+}
+
+function processAudio(data) {
+  let buf = new Uint16Array(data);
+  player.feed(buf);
+  player.volume(1) ;
+}
+
+socket.on('audio', processAudio);
