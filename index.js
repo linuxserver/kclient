@@ -133,24 +133,28 @@ io.on('connection', async function (socket) {
 
 //// PCM Audio Wrapper ////
 aio = socketIO(http, {path: SUBFOLDER + 'audio/socket.io'});
-aio.on('connection', async function (socket) {
+aio.on('connection', function (socket) {
   var record;
   let id = socket.id;
 
-  async function open() {
+  function open() {
     if (record) record.end();
       record = pulse.createRecordStream({
                  channels: 2,
-                 rate: 48000,
+                 rate: 44100,
                  format: 'S16LE',
                });
       record.on('connection', function(){
         record.on('data', function(chunk) {
-          aio.sockets.to(id).emit('audio', chunk);
+          // Only send real audio data
+          let arr = chunk.toJSON().data;
+	  if (! arr.every(item => item === 0)) {
+            aio.sockets.to(id).emit('audio', chunk);
+	  }
         });
       });
   }
-  async function close() {
+  function close() {
     if (record) record.end();
   }
 

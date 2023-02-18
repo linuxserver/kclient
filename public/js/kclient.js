@@ -75,19 +75,13 @@ function audio() {
     return;
   }
   socket.emit('open', '');
-  player = new PCMPlayer({
-             encoding: '16bitInt',
-             channels: 2,
-             sampleRate: 48000,
-             flushingTime: 10
-           });
+  player = new PCMPlayer();
   $('#audioButton').addClass("icons-selected");
 }
 
 function processAudio(data) {
   let buf = new Uint16Array(data);
   player.feed(buf);
-  player.volume(1) ;
 }
 
 socket.on('audio', processAudio);
