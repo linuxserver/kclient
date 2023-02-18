@@ -162,6 +162,7 @@ aio.on('connection', function (socket) {
   // Incoming socket requests
   socket.on('open', open);
   socket.on('close', close);
+  socket.on('disconnect', close);
 });
 
 // Spin up application on 6900
