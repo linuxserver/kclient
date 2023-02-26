@@ -142,15 +142,15 @@ aio.on('connection', function (socket) {
       record = pulse.createRecordStream({
                  channels: 2,
                  rate: 44100,
-                 format: 'S16LE',
+                 format: 'F32LE',
                });
       record.on('connection', function(){
         record.on('data', function(chunk) {
           // Only send real audio data
           let arr = chunk.toJSON().data;
-	  if (! arr.every(item => item === 0)) {
+          if (arr.length < 26456) {
             aio.sockets.to(id).emit('audio', chunk);
-	  }
+          }
         });
       });
   }

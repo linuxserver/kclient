@@ -80,8 +80,7 @@ function audio() {
 }
 
 function processAudio(data) {
-  let buf = new Uint16Array(data);
-  player.feed(buf);
+  player.feed(data);
 }
 
 socket.on('audio', processAudio);
