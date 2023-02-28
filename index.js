@@ -147,8 +147,7 @@ aio.on('connection', function (socket) {
       record.on('connection', function(){
         record.on('data', function(chunk) {
           // Only send real audio data
-          let arr = chunk.toJSON().data;
-          if (arr.length < 26456) {
+          if (chunk.length < 26456) {
             aio.sockets.to(id).emit('audio', chunk);
           }
         });
