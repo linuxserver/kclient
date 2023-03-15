@@ -59,20 +59,24 @@ io.on('connection', async function (socket) {
 
   // Get file list for directory
   async function getFiles(directory) {
-    let items = await fsw.readdir(directory);
-    if (items.length > 0) {
-      let dirs = [];
-      let files = [];
-      for await (let item of items) {
-        let fullPath = directory + '/' + item;
-        if (fs.lstatSync(fullPath).isDirectory()) {
-          dirs.push(item);
-        } else {
-          files.push(item);
+    try { 
+      let items = await fsw.readdir(directory);
+      if (items.length > 0) {
+        let dirs = [];
+        let files = [];
+        for await (let item of items) {
+          let fullPath = directory + '/' + item;
+          if (fs.lstatSync(fullPath).isDirectory()) {
+            dirs.push(item);
+          } else {
+            files.push(item);
+          }
         }
+        send('renderfiles', [dirs, files, directory]);
+      } else {
+        send('renderfiles', [[], [], directory]);
       }
-      send('renderfiles', [dirs, files, directory]);
-    } else {
+    } catch (error) {
       send('renderfiles', [[], [], directory]);
     }
   }
