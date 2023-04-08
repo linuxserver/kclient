@@ -17,8 +17,15 @@ var bodyParser = require('body-parser');
 var baseRouter = express.Router();
 var fsw = require('fs').promises;
 var fs = require('fs');
+// Audio init
+var audioEnabled = true;
 var PulseAudio = require('pulseaudio2');
 var pulse = new PulseAudio();
+pulse.on('error', function(error) {
+  console.log(error);
+  audioEnabled = false;
+  console.log('Kclient was unable to init audio, it is possible your host lacks support!!!!');
+});
 
 //// Server Paths Main ////
 app.engine('html', require('ejs').renderFile);
@@ -142,7 +149,8 @@ aio.on('connection', function (socket) {
   let id = socket.id;
 
   function open() {
-    if (record) record.end();
+    if (audioEnabled) {
+      if (record) record.end();
       record = pulse.createRecordStream({
                  channels: 2,
                  rate: 44100,
@@ -156,9 +164,12 @@ aio.on('connection', function (socket) {
           }
         });
       });
+    }
   }
   function close() {
-    if (record) record.end();
+    if (audioEnabled) {
+      if (record) record.end();
+    }
   }
 
 
