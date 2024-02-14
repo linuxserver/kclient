@@ -8,7 +8,7 @@ var TITLE = process.env.TITLE || 'KasmVNC Client';
 var FM_HOME = process.env.FM_HOME || '/config';
 var PATH;
 if (SUBFOLDER != '/') {
-  PATH = '&path=' + SUBFOLDER + 'websockify'
+  PATH = '&path=' + SUBFOLDER.substring(1) + 'websockify'
 } else {
   PATH = false;
 }
