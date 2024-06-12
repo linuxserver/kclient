@@ -66,6 +66,7 @@ var protocol = window.location.protocol;
 var path = window.location.pathname;
 var socket = io(protocol + '//' + host + ':' + port, { path: path + 'audio/socket.io'});
 var player = {};
+var micEnabled = false;
 
 function audio() {
   if (('audioCtx' in player) && (player.audioCtx)) {
@@ -84,3 +85,36 @@ function processAudio(data) {
 }
 
 socket.on('audio', processAudio);
+
+var audio_context;
+function mic() {
+  if (micEnabled) {
+    $('#micButton').removeClass("icons-selected");
+    audio_context.close();
+    micEnabled = false;
+    return;
+  }
+  $('#micButton').addClass("icons-selected");
+  micEnabled = true;
+  var mediaConstraints = {
+    audio: true
+  };
+  navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
+  function onMediaSuccess(stream) {
+    audio_context = new window.AudioContext;
+    let source = audio_context.createMediaStreamSource(stream);
+    let processor = audio_context.createScriptProcessor(2048, 1, 1);
+    source.connect(processor);
+    processor.connect(audio_context.destination);
+    processor.onaudioprocess = function (audioEvent) {
+      let int16Array = Int16Array.from(audioEvent.inputBuffer.getChannelData(0), x => x * 32767);
+      let arraySize = new Blob([JSON.stringify(int16Array)]).size;
+      if (arraySize > 20000) {
+        socket.emit('micdata', int16Array.buffer);
+      }
+    };
+  }
+  function onMediaError(e) {
+    console.error('media error', e);
+  }
+}
