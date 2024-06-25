@@ -31,16 +31,6 @@ pulse.on('error', function(error) {
   audioEnabled = false;
   console.log('Kclient was unable to init audio, it is possible your host lacks support!!!!');
 });
-if (audioEnabled) {
-  var stream = pulse.createPlaybackStream({
-    stream: "LSIOMic",
-    device: "LSIOMic",
-    format: "S16LE",
-    rate: 44100,
-    channels: 1,
-    latency: 100,
-  });
-}
 
 
 //// Server Paths Main ////
@@ -190,9 +180,7 @@ aio.on('connection', function (socket) {
 
   // Dump blobs to pulseaudio sink
   async function micData(buffer) {
-    if (audioEnabled) {
-      stream.write(buffer);
-    }
+    await fsw.writeFile('/defaults/mic.sock', buffer);
   }
 
   // Incoming socket requests

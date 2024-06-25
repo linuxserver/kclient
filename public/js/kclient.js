@@ -103,18 +103,20 @@ function mic() {
   function onMediaSuccess(stream) {
     audio_context = new window.AudioContext;
     let source = audio_context.createMediaStreamSource(stream);
-    let processor = audio_context.createScriptProcessor(2048, 1, 1);
+    let processor = audio_context.createScriptProcessor(512, 1, 1);
     source.connect(processor);
     processor.connect(audio_context.destination);
     processor.onaudioprocess = function (audioEvent) {
       let int16Array = Int16Array.from(audioEvent.inputBuffer.getChannelData(0), x => x * 32767);
       let arraySize = new Blob([JSON.stringify(int16Array)]).size;
-      if (arraySize > 20000) {
+      if (arraySize > 4100) {
         socket.emit('micdata', int16Array.buffer);
       }
     };
   }
   function onMediaError(e) {
     console.error('media error', e);
+    $('#micButton').removeClass("icons-selected");
+    micEnabled = false;
   }
 }
