@@ -2,7 +2,7 @@
   "name": "<%- title -%>",
   "short_name": "<%- title -%>",
   "manifest_version": 2,
-  "version": "1.0",
+  "version": "0.4.0",
   "display": "fullscreen",
   "background_color": "#000000",
   "theme_color": "#000000",
