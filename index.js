@@ -158,6 +158,7 @@ aio.on('connection', function (socket) {
     if (audioEnabled) {
       if (record) record.end();
       record = pulse.createRecordStream({
+                 device: 'auto_null.monitor',
                  channels: 2,
                  rate: 44100,
                  format: 'F32LE',
