@@ -18,6 +18,75 @@ eventer(messageEvent,function(e) {
   }
 },false);
 
+//// PCM player ////
+var buffer = [];
+var playing = false;
+var lock = false;
+// Check for audio stop to reset buffer
+setInterval(function() {
+  if (playing) {
+    if (!lock) {
+      buffer = [];
+      playing = false;
+    }
+    lock = false;
+  }
+}, 100);
+function PCM() {
+  this.init()
+}
+// Player Init
+PCM.prototype.init = function() {
+  // Establish audio context
+  this.audioCtx = new(window.AudioContext || window.webkitAudioContext)({
+    sampleRate: 44100
+  })
+  this.audioCtx.resume()
+  this.gainNode = this.audioCtx.createGain()
+  this.gainNode.gain.value = 1
+  this.gainNode.connect(this.audioCtx.destination)
+  this.startTime = this.audioCtx.currentTime
+}
+// Stereo player 
+PCM.prototype.feed = function(data) {
+  lock = true;
+  // Convert bytes to typed array then float32 array
+  let i16Array = new Int16Array(data, 0, data.length);
+  let f32Array = Float32Array.from(i16Array, x => x / 32767);
+  buffer = new Float32Array([...buffer, ...f32Array]);
+  let buffAudio = this.audioCtx.createBuffer(2, buffer.length, 44100);
+  let duration = buffAudio.duration / 2;
+  if ((duration > .05) || (playing)) {
+    playing = true;
+    let buffSource = this.audioCtx.createBufferSource();
+    let arrLength = buffer.length / 2;
+    let left = buffAudio.getChannelData(0);
+    let right = buffAudio.getChannelData(1);
+    let byteCount = 0;
+    let offset = 1;
+    for (let count = 0; count < arrLength; count++) {
+      left[count] = buffer[byteCount];
+      byteCount += 2;
+      right[count] = buffer[offset];
+      offset += 2;
+    }
+    buffer = [];
+    if (this.startTime < this.audioCtx.currentTime) {
+      this.startTime = this.audioCtx.currentTime;
+    }
+    buffSource.buffer = buffAudio;
+    buffSource.connect(this.gainNode);
+    buffSource.start(this.startTime);
+    this.startTime += duration;
+  }
+}
+// Destroy player 
+PCM.prototype.destroy = function() {
+  buffer = [];
+  playing = false;
+  this.audioCtx.close();
+  this.audioCtx = null;
+};
 
 // Handle Toggle divs
 function openToggle(id) {
@@ -76,7 +145,7 @@ function audio() {
     return;
   }
   socket.emit('open', '');
-  player = new PCMPlayer();
+  player = new PCM();
   $('#audioButton').addClass("icons-selected");
 }
 

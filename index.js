@@ -161,12 +161,13 @@ aio.on('connection', function (socket) {
                  device: 'auto_null.monitor',
                  channels: 2,
                  rate: 44100,
-                 format: 'F32LE',
+                 format: 'S16LE',
                });
       record.on('connection', function(){
         record.on('data', function(chunk) {
-          // Only send real audio data
-          if (chunk.length < 26456) {
+          // Only send non-zero audio data
+          let i16Array = Int16Array.from(chunk);
+          if (! i16Array.every(item => item === 0)) {
             aio.sockets.to(id).emit('audio', chunk);
           }
         });

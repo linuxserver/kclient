@@ -1,6 +1,6 @@
 {
   "name": "kclient",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Kclient is a wrapper for KasmVNC to add functionality to a containerized environment",
   "main": "index.js",
   "dependencies": {
