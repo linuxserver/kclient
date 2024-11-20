@@ -3,12 +3,13 @@
 //// Env variables ////
 var CUSTOM_USER = process.env.CUSTOM_USER || 'abc';
 var PASSWORD = process.env.PASSWORD || 'abc';
+var PRE_PATH = process.env.PRE_PATH || '/';
 var SUBFOLDER = process.env.SUBFOLDER || '/';
 var TITLE = process.env.TITLE || 'KasmVNC Client';
 var FM_HOME = process.env.FM_HOME || '/config';
 var PATH;
-if (SUBFOLDER != '/') {
-  PATH = '&path=' + SUBFOLDER.substring(1) + 'websockify'
+if (PRE_PATH != '/' || SUBFOLDER != '/') {
+  PATH = '&path=' + PRE_PATH.substring(1) + SUBFOLDER.substring(1) + 'websockify'
 } else {
   PATH = false;
 }
