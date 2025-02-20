@@ -133,7 +133,7 @@ var host = window.location.hostname;
 var port = window.location.port;
 var protocol = window.location.protocol;
 var path = window.location.pathname;
-var socket = io(protocol + '//' + host + ':' + port, { path: path + 'audio/socket.io'});
+var socket = io(protocol + '//' + host + ':' + port, { path: (path + ((!path.endsWith('/') && path != '/') ? '/' : '')) + 'audio/socket.io'});
 var player = {};
 var micEnabled = false;
 

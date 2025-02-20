@@ -39,19 +39,19 @@ app.engine('json', require('ejs').renderFile);
 baseRouter.use('/public', express.static(__dirname + '/public'));
 baseRouter.use('/vnc', express.static("/usr/share/kasmvnc/www/"));
 baseRouter.get('/', function (req, res) {
-  res.render(__dirname + '/public/index.html', {title: TITLE, path: PATH});
+  res.render(__dirname + '/public/index.html', {title: TITLE, path: PATH, path_prefix: SUBFOLDER});
 });
 baseRouter.get('/favicon.ico', function (req, res) {
   res.sendFile(__dirname + '/public/favicon.ico');
 });
 baseRouter.get('/manifest.json', function (req, res) {
-  res.render(__dirname + '/public/manifest.json', {title: TITLE});
+  res.render(__dirname + '/public/manifest.json', {title: TITLE, path_prefix: SUBFOLDER});
 });
 
 //// Web File Browser ////
 // Send landing page 
 baseRouter.get('/files', function (req, res) {
-  res.sendFile( __dirname + '/public/filebrowser.html');
+  res.render( __dirname + '/public/filebrowser.html', {path_prefix: SUBFOLDER});
 });
 // Websocket comms //
 io = socketIO(http, {path: SUBFOLDER + 'files/socket.io',maxHttpBufferSize: 200000000});
