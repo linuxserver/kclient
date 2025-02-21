@@ -41,10 +41,15 @@ var public_dir = path_node.join(__dirname, 'public');
 app.engine('html', ejs.renderFile);
 app.engine('json', ejs.renderFile);
 app.use(morgan('combined'));
-baseRouter.use('/public', express.static(public_dir));
-baseRouter.use('/vnc', express.static("/usr/share/kasmvnc/www/"));
+
+//// Routes ////
 baseRouter.get('/', function (req, res) {
   res.render(path_node.join(public_dir, 'index.html'), {title: TITLE, path: PATH, path_prefix: SUBFOLDER});
+});
+baseRouter.use('/public/css', express.static(path_node.join(public_dir, 'css')));
+baseRouter.use('/public/js', express.static(path_node.join(public_dir, 'js')));
+baseRouter.get('/public/icon.png', function (req, res) {
+  res.sendFile(path_node.join(public_dir, 'icon.png'));
 });
 baseRouter.get('/favicon.ico', function (req, res) {
   res.sendFile(path_node.join(public_dir, 'favicon.ico'));
@@ -52,12 +57,12 @@ baseRouter.get('/favicon.ico', function (req, res) {
 baseRouter.get('/manifest.json', function (req, res) {
   res.render(path_node.join(public_dir, 'manifest.json'), {title: TITLE, path_prefix: SUBFOLDER});
 });
-
-//// Web File Browser ////
-// Send landing page 
 baseRouter.get('/files', function (req, res) {
   res.render(path_node.join(public_dir, 'filebrowser.html'), {path_prefix: SUBFOLDER});
 });
+baseRouter.use('/vnc', express.static("/usr/share/kasmvnc/www/"));
+app.use(SUBFOLDER, baseRouter);
+
 // Websocket comms //
 var io = socketIO(http, {path: SUBFOLDER + 'files/socket.io', maxHttpBufferSize: 200000000});
 io.on('connection', async function (socket) {
@@ -201,6 +206,7 @@ aio.on('connection', function (socket) {
     }
   }
   function close() {
+    console.info('[kclient] audio socket closed.');
     if (audioEnabled) {
       if (record) record.end();
     }
@@ -223,7 +229,6 @@ aio.on('connection', function (socket) {
 });
 
 // Spin up application on port
-app.use(SUBFOLDER, baseRouter);
 http
   .listen(port, function() {
     console.log('[kclient] Listening on port ' + port);
