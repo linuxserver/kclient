@@ -16,6 +16,7 @@ if (SUBFOLDER != '/') {
 var socketIO = require('socket.io');
 var express = require('express');
 var path_node = require('path');
+var morgan = require('morgan');
 var ejs = require('ejs');
 var app = express();
 var http = require('http').createServer(app);
@@ -39,6 +40,7 @@ var public_dir = path_node.join(__dirname, 'public');
 
 app.engine('html', ejs.renderFile);
 app.engine('json', ejs.renderFile);
+app.use(morgan('combined'));
 baseRouter.use('/public', express.static(public_dir));
 baseRouter.use('/vnc', express.static("/usr/share/kasmvnc/www/"));
 baseRouter.get('/', function (req, res) {
