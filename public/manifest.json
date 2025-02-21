@@ -8,10 +8,10 @@
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "public/icon.png",
+      "src": "<% if(path_prefix){ %><%- path_prefix -%><% } %>public/icon.png",
       "type": "image/png",
       "sizes": "180x180"
     }
   ],
-  "start_url": "/"
+  "start_url": "<% if(path_prefix){ %><%- path_prefix -%><% } %>"
 }
