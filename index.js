@@ -224,7 +224,7 @@ aio.on('connection', function (socket) {
 app.use(SUBFOLDER, baseRouter);
 http
   .listen(port, function() {
-    console.log('App listening on port ' + port);
+    console.log('kclient listening on port ' + port);
   })
   .on('error', function(err) {
     console.log('Error on http server: ');
