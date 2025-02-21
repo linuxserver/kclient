@@ -28,9 +28,9 @@ var audioEnabled = true;
 var PulseAudio = require('pulseaudio2');
 var pulse = new PulseAudio();
 pulse.on('error', function(error) {
-  console.error(error);
+  console.error("[kclient] pulse audio error: ", error);
   audioEnabled = false;
-  console.log('Kclient was unable to init audio, it is possible your host lacks support!!!!');
+  console.log('[kclient] Kclient was unable to init audio, it is possible your host lacks support!!!!');
 });
 var port = 6900;
 
@@ -97,7 +97,7 @@ io.on('connection', async function (socket) {
         send('renderfiles', [[], [], directory]);
       }
     } catch (error) {
-      console.error(error);
+      console.error("[kclient] getFiles error: ", error);
       send('renderfiles', [[], [], directory]);
     }
   }
@@ -109,7 +109,7 @@ io.on('connection', async function (socket) {
       let data = await fsw.readFile(file);
       send('sendfile', [data, fileName]);
     } catch (error) {
-      console.error("Error on downloadFile: ", error);
+      console.error("[kclient] Error on downloadFile: ", error);
     }
   }
 
@@ -130,7 +130,7 @@ io.on('connection', async function (socket) {
         getFiles(directory);
       }
     } catch (error) {
-      console.error("Error on uploadFile: ", error);
+      console.error("[kclient] Error on uploadFile: ", error);
     }
   }
 
@@ -147,7 +147,7 @@ io.on('connection', async function (socket) {
       }
       getFiles(directory);
     } catch (error) {
-      console.error("Error on deleteFiles: ", error);
+      console.error("[kclient] Error on deleteFiles: ", error);
     }
   }
 
@@ -158,7 +158,7 @@ io.on('connection', async function (socket) {
     try {
       await fsw.mkdir(dir, { recursive: true });
     } catch (error) {
-      console.info("Dir exists!");
+      console.info("[kclient] Dir exists!");
     }
     getFiles(directory);
   }
@@ -209,7 +209,7 @@ aio.on('connection', function (socket) {
     try {
       await fsw.writeFile('/defaults/mic.sock', buffer);
     } catch (error) {
-      console.error('Error on micData: ' + error);
+      console.error('[kclient] Error on micData: ' + error);
     }
   }
 
@@ -224,18 +224,18 @@ aio.on('connection', function (socket) {
 app.use(SUBFOLDER, baseRouter);
 http
   .listen(port, function() {
-    console.log('kclient listening on port ' + port);
+    console.log('[kclient] Listening on port ' + port);
   })
   .on('error', function(err) {
-    console.log('Error on http server: ');
+    console.log('[kclient] Error on http server: ');
     console.error(err);
   });
 
 process
   .on('unhandledRejection', function (reason, p) {
-    console.error('Unhandled Rejection at:', p, 'reason:', reason);
+    console.error('[kclient] Unhandled Rejection at:', p, 'reason:', reason);
   })
   .on('uncaughtException', function (err) {
-    console.log('Uncaught exception: ');
+    console.log('[kclient] Uncaught exception: ');
     console.error(err.stack);
   });
