@@ -43,19 +43,11 @@ app.engine('json', ejs.renderFile);
 app.use(morgan('combined'));
 
 //// Routes ////
+baseRouter.get('/favicon.ico', function (req, res) {
+  res.sendFile(path_node.join(public_dir, 'favicon.ico'));
+});
 baseRouter.get('/', function (req, res) {
   res.render(path_node.join(public_dir, 'index.html'), {title: TITLE, path: PATH, path_prefix: SUBFOLDER});
-});
-baseRouter.use('/public/css', express.static(path_node.join(public_dir, 'css')));
-baseRouter.use('/public/js', express.static(path_node.join(public_dir, 'js')));
-baseRouter.get('/public/icon.png', function (req, res) {
-  res.sendFile(path_node.join(public_dir, 'icon.png'));
-});
-baseRouter.get('/favicon.ico', function (req, res) {
-  var path = path_node.join(public_dir, 'favicon.ico');
-  console.log("path: " + path);
-  
-  res.sendFile(path);
 });
 baseRouter.get('/manifest.json', function (req, res) {
   res.render(path_node.join(public_dir, 'manifest.json'), {title: TITLE, path_prefix: SUBFOLDER});
