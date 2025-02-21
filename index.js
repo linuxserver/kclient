@@ -16,7 +16,7 @@ if (SUBFOLDER != '/') {
 var socketIO = require('socket.io');
 var express = require('express');
 var ejs = require('ejs');
-var app = require('express')();
+var app = express();
 var http = require('http').Server(app);
 var bodyParser = require('body-parser');
 var baseRouter = express.Router();
@@ -54,7 +54,7 @@ baseRouter.get('/files', function (req, res) {
   res.render( __dirname + '/public/filebrowser.html', {path_prefix: SUBFOLDER});
 });
 // Websocket comms //
-io = socketIO(http, {path: SUBFOLDER + 'files/socket.io',maxHttpBufferSize: 200000000});
+var io = socketIO(http, {path: SUBFOLDER + 'files/socket.io', maxHttpBufferSize: 200000000});
 io.on('connection', async function (socket) {
   let id = socket.id;
 
@@ -103,38 +103,50 @@ io.on('connection', async function (socket) {
 
   // Write client sent file
   async function uploadFile(res) {
-    let directory = res[0];
-    let filePath = res[1];
-    let data = res[2];
-    let render = res[3];
-    let dirArr = filePath.split('/');
-    let folder = filePath.replace(dirArr[dirArr.length - 1], '')
-    await fsw.mkdir(folder, { recursive: true });
-    await fsw.writeFile(filePath, Buffer.from(data));
-    if (render) {
-      getFiles(directory);
+    try {
+      let directory = res[0];
+      let filePath = res[1];
+      let data = res[2];
+      let render = res[3];
+      let dirArr = filePath.split('/');
+      let folder = filePath.replace(dirArr[dirArr.length - 1], '')
+      
+      await fsw.mkdir(folder, { recursive: true });
+      await fsw.writeFile(filePath, Buffer.from(data));
+      
+      if (render) {
+        getFiles(directory);
+      }
+    } catch (error) {
+      console.error("Error on uploadFile: ", error);
     }
   }
 
   // Delete files
   async function deleteFiles(res) {
-    let item = res[0];
-    let directory = res[1];
-    item = item.replace("|","'");
-    if (fs.lstatSync(item).isDirectory()) {
-      await fsw.rm(item, {recursive: true});
-    } else {
-      await fsw.unlink(item);
+    try {
+      let item = res[0];
+      let directory = res[1];
+      item = item.replace("|","'");
+      if (fs.lstatSync(item).isDirectory()) {
+        await fsw.rm(item, {recursive: true});
+      } else {
+        await fsw.unlink(item);
+      }
+      getFiles(directory);
+    } catch (error) {
+      console.error("Error on delete file: ", error);
     }
-    getFiles(directory);
   }
 
   // Create a folder
   async function createFolder(res) {
     let dir = res[0];
     let directory = res[1];
-    if (!fs.existsSync(dir)){
-      await fsw.mkdir(dir);
+    try {
+      await fsw.mkdir(dir, { recursive: true });
+    } catch (error) {
+      console.info("Dir exists!");
     }
     getFiles(directory);
   }
@@ -149,7 +161,7 @@ io.on('connection', async function (socket) {
 });
 
 //// PCM Audio Wrapper ////
-aio = socketIO(http, {path: SUBFOLDER + 'audio/socket.io'});
+var aio = socketIO(http, {path: SUBFOLDER + 'audio/socket.io'});
 aio.on('connection', function (socket) {
   var record;
   let id = socket.id;
