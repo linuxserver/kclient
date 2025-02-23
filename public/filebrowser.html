@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="public/css/filebrowser.css">
-    <script type="text/javascript" src="public/js/jquery.min.js"></script>
-    <script src="files/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="public/js/filebrowser.js"></script>
+    <link rel="stylesheet" href="<% if(path_prefix){ %><%- path_prefix -%><% } %>public/css/filebrowser.css">
+    <script type="text/javascript" src="<% if(path_prefix){ %><%- path_prefix -%><% } %>public/js/jquery.min.js"></script>
+    <script src="<% if(path_prefix){ %><%- path_prefix -%><% } %>files/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="<% if(path_prefix){ %><%- path_prefix -%><% } %>public/js/filebrowser.js"></script>
   </head>
   <body>
   <span id="buttons">
