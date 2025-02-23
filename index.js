@@ -77,7 +77,7 @@ io.on('connection', async function (socket) {
 
   // Get file list for directory
   async function getFiles(directory) {
-    try { 
+    try {
       if (fs.existsSync(directory)) {
         let items = await fsw.readdir(directory);
         if (items.length > 0) {

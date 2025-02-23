@@ -47,7 +47,7 @@ PCM.prototype.init = function() {
   this.gainNode.connect(this.audioCtx.destination)
   this.startTime = this.audioCtx.currentTime
 }
-// Stereo player 
+// Stereo player
 PCM.prototype.feed = function(data) {
   lock = true;
   // Convert bytes to typed array then float32 array
@@ -80,7 +80,7 @@ PCM.prototype.feed = function(data) {
     this.startTime += duration;
   }
 }
-// Destroy player 
+// Destroy player
 PCM.prototype.destroy = function() {
   buffer = [];
   playing = false;
@@ -136,6 +136,8 @@ var path = window.location.pathname;
 var socket = io(protocol + '//' + host + ':' + port, { path: (path + ((!path.endsWith('/') && path != '/') ? '/' : '')) + 'audio/socket.io'});
 var player = {};
 var micEnabled = false;
+var micWorkletNode; // To store the AudioWorkletNode
+var audio_context;
 
 function audio() {
   if (('audioCtx' in player) && (player.audioCtx)) {
@@ -155,11 +157,41 @@ function processAudio(data) {
 
 socket.on('audio', processAudio);
 
-var audio_context;
-function mic() {
+// Define the AudioWorkletProcessor as a string.
+const micWorkletProcessorCode = `
+class MicWorkletProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+  }
+
+  process(inputs, outputs, parameters) {
+    const input = inputs[0];
+
+    if (input && input[0]) { // Check if input and channel data are available
+      const inputChannelData = input[0];
+      const int16Array = Int16Array.from(inputChannelData, x => x * 32767);
+      if (! int16Array.every(item => item === 0)) {
+        this.port.postMessage({ buffer: int16Array.buffer });
+      }
+    }
+    return true; // Keep the processor alive
+  }
+}
+
+registerProcessor('mic-worklet-processor', MicWorkletProcessor);
+`;
+
+async function mic() {
   if (micEnabled) {
     $('#micButton').removeClass("icons-selected");
-    audio_context.close();
+    if (micWorkletNode) {
+      micWorkletNode.disconnect();
+      micWorkletNode = null; // Release the node
+    }
+    if (audio_context) {
+      audio_context.close();
+      audio_context = null;
+    }
     micEnabled = false;
     return;
   }
@@ -168,22 +200,27 @@ function mic() {
   var mediaConstraints = {
     audio: true
   };
-  navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-  function onMediaSuccess(stream) {
-    audio_context = new window.AudioContext;
-    let source = audio_context.createMediaStreamSource(stream);
-    let processor = audio_context.createScriptProcessor(512, 1, 1);
-    source.connect(processor);
-    processor.connect(audio_context.destination);
-    processor.onaudioprocess = function (audioEvent) {
-      let int16Array = Int16Array.from(audioEvent.inputBuffer.getChannelData(0), x => x * 32767);
-      let arraySize = new Blob([JSON.stringify(int16Array)]).size;
-      if (arraySize > 4100) {
-        socket.emit('micdata', int16Array.buffer);
-      }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+    audio_context = new window.AudioContext();
+
+    // Create a URL for the AudioWorkletProcessor code
+    const micWorkletProcessorBlob = new Blob([micWorkletProcessorCode], { type: 'text/javascript' });
+    const micWorkletProcessorURL = URL.createObjectURL(micWorkletProcessorBlob);
+
+    await audio_context.audioWorklet.addModule(micWorkletProcessorURL);
+
+    micWorkletNode = new AudioWorkletNode(audio_context, 'mic-worklet-processor');
+
+    micWorkletNode.port.onmessage = (event) => {
+      socket.emit('micdata', event.data.buffer);
     };
-  }
-  function onMediaError(e) {
+
+    let source = audio_context.createMediaStreamSource(stream);
+    source.connect(micWorkletNode);
+
+  } catch (e) {
     console.error('media error', e);
     $('#micButton').removeClass("icons-selected");
     micEnabled = false;
