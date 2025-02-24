@@ -58,7 +58,7 @@ baseRouter.get('/manifest.json', function (req, res) {
 baseRouter.get('/files', function (req, res) {
   res.render(path_node.join(public_dir, 'filebrowser.html'), {path_prefix: SUBFOLDER});
 });
-baseRouter.use('/vnc', express.static("/usr/share/kasmvnc/www/"));
+
 app.use(SUBFOLDER, baseRouter);
 
 // Websocket comms //
