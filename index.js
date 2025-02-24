@@ -43,6 +43,9 @@ app.engine('json', ejs.renderFile);
 app.use(morgan('combined'));
 
 //// Routes ////
+baseRouter.get('/ping', function (req, res) {
+  res.send("pong");
+});
 baseRouter.get('/favicon.ico', function (req, res) {
   res.sendFile(path_node.join(public_dir, 'favicon.ico'));
 });
